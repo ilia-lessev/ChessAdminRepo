@@ -11,13 +11,6 @@ from django.dispatch import receiver
 MATCH_RESULT_CHOICES = [("WIN", "WIN"), ("DRAW", "DRAW"),]
 MATCH_STATUS_CHOICES = [("SCHEDULED", "SCHEDULED"),("PLAYING", "PLAYING"),("COMPLETED", "COMPLETED"),("CANCELED", "CANCELED")]
 BOOLEAN_CHOICES = [(True,'Yes'),(False,'No')]
-
-class Note(models.Model):
-    title = models.CharField(max_length=25, unique=True)
-    text = models.CharField(max_length=4000)
-
-    def __str__(self):
-        return f"Title: {self.title}"
         
 class Player(models.Model):
     first_name = models.CharField(max_length=50)
