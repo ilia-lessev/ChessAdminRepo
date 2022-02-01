@@ -88,8 +88,10 @@ USE_L10N = True
 USE_TZ = True
 
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/home/dh_tqqkie/chess.cloudtyme.com/public/static/'   
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'   
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
