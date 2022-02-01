@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ChessAdminApp',
 ]
 
 MIDDLEWARE = [
@@ -91,4 +92,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = '/home/dh_tqqkie/chess.cloudtyme.com/public/static/'   
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'   
