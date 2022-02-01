@@ -2,12 +2,14 @@ from django.contrib import admin
 from django.forms import ModelForm
 from .models import Player
 from .models import Match
+from .models import RankingEvent
+from .models import RankingEventData
 from django.db.models import F, Q, ExpressionWrapper, IntegerField
 from django.db.models import Value, Count, OuterRef, Subquery, Sum
 from django.db.models.expressions import RawSQL
+
 admin.site.site_header = 'Netstock Chess Club - Admin Site'
-
-
+    
 class PlayerForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -22,17 +24,18 @@ class PlayerForm(ModelForm):
         fields = '__all__'
 
 class PlayerAdmin(admin.ModelAdmin):
+
+        
     list_display = ['first_name', 'last_name', 'ranking', 'points', 'number_of_matches', 'number_of_wins', 'number_of_losses', 'number_of_draws', 'winning_ratio']
     form = PlayerForm
     readonly_fields = ['number_of_matches', 'number_of_wins', 'number_of_losses', 'number_of_draws', 'winning_ratio']
-
+ 
     def get_list_display_links(self, request, list_display):
-            
+           
         if has_groups(request.user, ["admins", "operators"]):
             return super().get_list_display_links(request, list_display)
         else:
             return ['None']     
-        
              
     def get_form(self, request, *args, **kwargs):
         form = super(PlayerAdmin, self).get_form(request, *args, **kwargs)
@@ -102,14 +105,16 @@ class MatchAdmin(admin.ModelAdmin):
         
         super().save_model(request, obj, form, change)
 
+class RankingEventDataAdmin(admin.ModelAdmin):
+    list_display = ['date', 'name', 'points', 'rank', 'winratio','match_count']
+
+class RankingEventAdmin(admin.ModelAdmin):
+    list_display = ['id', 'date_created']
 
 def has_groups(user, group):
     return user.groups.filter(name__in=group).exists()
-            
+
 admin.site.register(Player, PlayerAdmin)
-admin.site.register(Match, MatchAdmin) 
-
-
-
-
-
+admin.site.register(Match, MatchAdmin)                             
+admin.site.register(RankingEventData, RankingEventDataAdmin)
+admin.site.register(RankingEvent, RankingEventAdmin)
