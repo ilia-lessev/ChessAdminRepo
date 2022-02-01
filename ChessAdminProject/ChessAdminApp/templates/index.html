@@ -31,11 +31,241 @@
 
 <body>
   <div class="row" style=" padding: 15px 15px 15px 50px; background: #417690; color: #f5dd5d ; text-align: center; ">
-    <h1 class="header">Chess Admin App - Landing Page</h1>
+    <h1 class="header">Chess Admin App - Release Notes</h1>
   </div>
   <br />
-
+  <div class="row" style=" padding: 15px 15px 15px 50px; background: #417690; color: #f5dd5d ; ">
+    <h3 class="header">Application Access</h3>
+  </div>
+  <div style=" padding: 15px 15px 15px 50px; ">
+    <p class="subHead">To enter the functional area of the site you need to login as one of the following users:</p>
+    <p class="normal">player1</p>
+    <p class="normal">player2</p>
+    <p class="normal">player3</p>
+    <p class="normal">operator1</p>
+    <p class="normal">operator2</p>
+    <p class="normal">admin1</p>
+    <p class="normal">admin2</p>
+    <p class="normal">superuser</p>
+     
+    <p class="subHead">Passwords will be distributed via email. Send password requests to: <a href="mailto:ilia.lessev@gmail.com">ilia.lessev@gmail.com</a> </p>
+    
+    <br />
+    <p class="subHead">Navigate to => <a href="/admin">Chess Admin App</a></p>
+  </div>
+    <hr> 
+  <div class="row" style=" padding: 15px 15px 15px 50px; background: #417690; color: #f5dd5d ; ">
+    <h3 class="header">Application Permissions</h3>
+  </div>
   
+  <div style=" padding: 15px 15px 15px 50px; ">
+  <p class="subHead">
+    Each user belongs to a group and will inherit the Application Permissions assigned to this Group/Role.
+    In the current configuration each user belongs to a single Role. Multiple Role memberships are possible. In such cases the user will inherit the permission of each Group/Role that he is member of.
+    The functionality that the different users will see is therefore slightly different according to the role they belong to.
+  </p>
+  <p class="subHead">
+    Permissions are controlled on site level, model (entity, DB table) level, action/operation level and in some cases even on field level. Examples for the field access control would be the explicit assignment of Rank and Points values. The normal flow will calculate those dynamically, but if you are logged on as a superuser - you will have the option to do an explicit update of those fields. This of course introduces a risk to tempering the integrity of data. 
+    The superuser therefore has to live up to his name and ensure the manual changes maintain the integrity of the data.
+  </p>
+  </div>
+  
+  <hr> 
+
+
+
+  <div class="row" style=" padding: 15px 15px 15px 50px; background: #417690; color: #f5dd5d ; ">
+    <h3 class="header">Requirements</h3>
+  </div>
+  
+  <div style=" padding: 15px 15px 15px 50px; ">
+  <p class="subHead">
+    One of the main purposes of this development has been to create an application that implements the requirements as specified by Netstock documentation.
+    Some grey areas in the requirements were noted during the development. The interpretation for those places where the spec wasn't explicit are listed below.
+  </p>
+
+  <ul style="padding: 5px 5px 5px 60px;">
+    <li>
+        <p class="subHead">
+        Ranking of the players when the match finishes in a draw result and the players Ranks differ by 1(one) position (when their ranks are neighbouring numbers in other words e.g. Player1 is at rank 10 and Player2 is at rank 11).
+        <br>
+        In such scenario neither of the players' ranks will change.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        Ranking of the players when the match finishes in a win for the player with the lower rank and the players Ranks differ by 1(one) position (when their ranks are neighbouring numbers in other words e.g. Player1 is at rank 10 and Player2 is at rank 11).
+        <br>
+        In such scenario the lower rank player will go 1(one) position up the ranking e.g. from 11 to 10 and the higher rank player will go 1(one) position down the ranking e.g. from 10 to 11.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        Ranking of the players when the match finishes in a win for the player with the lower rank and the players Ranks differ by 2(two) positions e.g. Player1 is at rank 10 and Player2 is at rank 12).
+        <br>
+        In such scenario the lower rank player will go 1(one) position up the ranking e.g. from 12 to 11 and the higher rank player will remain unchanged e.g. from 10 will remain at 10.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        Ranking of the players when the match finishes in a win for the player with the lower rank and the players Ranks differ by an odd number e.g. Player1 is at rank 10 and Player2 is at rank 15).
+        <br>
+        In such scenario the higher rank player will go down 1 position as per the requirements spec e.g. from 10 to 11 and the lower rank player will go up the ranking by math.floor(of half the distance between their ranks) e.g. from 15 to 13.
+        </p>
+    </li>
+    
+  </ul>
+
+  </div>
+  
+  <hr>
+  
+  
+  
+  
+  
+  <div class="row" style=" padding: 15px 15px 15px 50px; background: #417690; color: #f5dd5d ; ">
+    <h3 class="header">Extensions</h3>
+  </div>
+  
+  <div style="padding: 15px 15px 15px 50px; ">
+  <p class="subHead">
+    Another main objective of the development was to provide a close resemblance to a real-life application and thus to present other interesting data transformations and interactions.
+    For that reason, additional elements - not required by the original requirements spec - were introduced. The more notable ones are listed below.
+  </p>      
+
+  <ul style="padding: 5px 5px 5px 60px;">
+    <li >
+        <p class="subHead">
+        Points system was introduced as an attribute to the Player model. Points is a persisted attribute in the Players model.
+        The Points system in this implementation is completely independent from the Rank system. Thus, the fulfilment of the requirements as per the original spec remain unaffected.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        Various other attributes added to the Player profile and logical model. They (or at least most of them) are not persisted to the physical model, they are calculated at run time. Examples for such attributes are No. of wins, No. of losses, WinRatio etc. 
+        <br>
+        We have similar attributes in the Match model as well. The idea behind them is to facilitated tracking of rank changes on one hand and on another to allow for working with different stats as often in the sports world stats is a topic of hight interest. 
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        Comprehensive sorting on any filed or combination of fields is available on all models. Thus, the Leader Board can be viewed per Rank, per Points, per No. of Matches, No. of Wins, Win Ratio etc.
+        <br>
+        The internal Leader Board is a live view of the data from Database. As the data is updated on every Match completion, it is reflected on the Leader Board View.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        Capturing of a Match has to go through a specific flow. Flow will be explained at a Demo time, but interface is descriptive enough and users should be able to find their way through the Match capturing flow.
+        <br>
+        Not following the Match capturing flow or capturing non logical data will trigger various validation errors.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        Validations are implemented on:
+            <ul style="padding: 5px 5px 5px 60px;">
+            <li>
+                <p class="normal">
+                Application Level.
+                Those are the "OMG..." errors that you might see on the Debug screen. They are flow errors that would be difficult to detect on a Data level 
+                </p>
+            </li>
+            <li>
+                <p class="normal">
+                Data level.
+                Those validation are defined on a model level through the ORM layer. They are finally implemented as Check Constraints on a Database level. They ensure the integrity of Data. Enquire for examples at a Demo time.
+                </p>
+            </li>
+          </ul>
+        
+        
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        The Chess Admin App can generate Ranking Events. This will output the current state of the Ranking for historical archiving and for release purposes to third parties.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        All Ranking Events data can be retrieved through the Web Services layer on The Chess Admin site.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        The Web Services are consumed by the Chess Ranking Presentation App at http://chess.cloudtyme.com. This site is on a completely isolated sub-domain and web site. It plays the role of an independent service provider which consumes data from http://Chessadmin.cloudtyme.com and provides a different look and concept of the Ranking data.
+        <br>
+        The http://chess.cloudtyme.com is as a public site and requires no login to view the presentations
+        <br>
+        <br>
+        Navigate to => <a href="http://chess.cloudtyme.com">Chess Ranking Presentation App</a>
+        </p>
+    </li>
+    
+  </ul>
+
+  </div>
+  
+  <hr>
+  
+  
+  
+   <div class="row" style=" padding: 15px 15px 15px 50px; background: #417690; color: #f5dd5d ; ">
+    <h3 class="header">Disclaimers</h3>
+  </div>
+  
+  <div style="padding: 15px 15px 15px 50px; ">
+    
+
+  <ul style="padding: 5px 5px 5px 60px;">
+    <li >
+        <p class="subHead">
+        This site is not a production site. It is created for the purpose of a demo project.
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        The application is executing against a sqillite Database which might present some issues if performing in a highly concurrent environment.
+        <br>
+        The application hasn't been tested under conditions of high concurrency and high-volume hits.
+    </li>
+    <li>
+        <p class="subHead">
+        The site is hosted on a shared hosting with lots of limitations. Limited bandwidth is one of them. 
+    </li>
+    <li>
+        <p class="subHead">
+        The site doesn't have any form of geo-location caching enabled. 
+    </li>
+    <li>
+        <p class="subHead">
+        For the purpose of a demo, the implementation of the site has skipped a lot of possible performance optimisations such as scripts caching etc. 
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        The site is not exposed on an SSL channel. Only HTTP protocol is available at the time of writing of this document.  
+        </p>
+    </li>
+    <li>
+        <p class="subHead">
+        The application is running with Debug mode enabled.  
+        </p>
+    </li>
+   
+    
+  </ul>
+
+  </div>
+  
+  <hr>
+  
+  
+  
+  
+  <br />
 </body>
 
 </html>
