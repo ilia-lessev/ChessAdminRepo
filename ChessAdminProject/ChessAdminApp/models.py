@@ -12,6 +12,12 @@ MATCH_RESULT_CHOICES = [("WIN", "WIN"), ("DRAW", "DRAW"),]
 MATCH_STATUS_CHOICES = [("SCHEDULED", "SCHEDULED"),("PLAYING", "PLAYING"),("COMPLETED", "COMPLETED"),("CANCELED", "CANCELED")]
 BOOLEAN_CHOICES = [(True,'Yes'),(False,'No')]
 
+class Note(models.Model):
+    title = models.CharField(max_length=25, unique=True)
+    text = models.CharField(max_length=4000)
+
+    def __str__(self):
+        return f"Title: {self.title}"
         
 class Player(models.Model):
     first_name = models.CharField(max_length=50)
@@ -152,3 +158,59 @@ class Match(models.Model):
         
         super().save(*args, **kwargs)  
         
+    class Meta:                                                                                                          
+        constraints = [                      
+            models.CheckConstraint(name='1_two_players_required', check=(Q(player_one__isnull=False, player_two__isnull=False)) & ~Q(player_one=F('player_two'))),
+            models.CheckConstraint(name='2_complete_match_result', check=(Q(status='SCHEDULED', match_result__isnull=True) | Q(status='PLAYING', match_result__isnull=True) | Q(status='COMPLETED', match_result__isnull=False) | Q(status='CANCELED', match_result__isnull=True) )),
+            models.CheckConstraint(name='3_winner_on_complete', check=(Q(match_result__isnull=True, winner__isnull=True) | Q(match_result__isnull=False, match_result='DRAW', winner__isnull=True) | Q(match_result__isnull=False, match_result='WIN', winner__isnull=False))),                                                                                                                                      
+            models.CheckConstraint(name='4_winner_is_in_match', check=( Q(match_result='DRAW', winner__isnull=True) | Q(match_result='WIN', winner=F('player_one')) | Q(match_result='WIN', winner=F('player_two')) )),                                                                                                                                     
+            models.CheckConstraint(name='5_playing_entry_ranks', check=(Q(status='SCHEDULED', player_one_entry_ranking__isnull=True, player_two_entry_ranking__isnull=True) | Q(status='PLAYING', player_one_entry_ranking__isnull=False, player_two_entry_ranking__isnull=False) | Q(status='COMPLETED', player_one_entry_ranking__isnull=False, player_two_entry_ranking__isnull=False) | Q(status='CANCELED'))),
+            models.CheckConstraint(name='6_complete_match_ranking', check=(Q(match_result__isnull=True, player_one_ranking_change__isnull=True, player_two_ranking_change__isnull=True) | Q(match_result__isnull=False, player_one_ranking_change__isnull=False, player_two_ranking_change__isnull=False) ))]
+            
+        verbose_name_plural = "Matches"
+
+class RankingEventData(models.Model):
+    date = models.DateTimeField()
+    name = models.CharField(max_length=50)
+    points = models.IntegerField()
+    rank = models.IntegerField()
+    winratio =  models.DecimalField(max_digits = 5, decimal_places = 2)
+    match_count = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return f"{self.date} : {self.name}"
+    
+    class Meta:                                                                                                          
+        verbose_name_plural = "Ranking events data"
+        
+class RankingEvent(models.Model):
+    date_created = models.DateTimeField(null=True, blank=True)
+    
+                                
+    def __str__(self):
+        return f"Ranking Event: {self.id} - {self.date_created}"
+        
+    def save(self, *args, **kwargs):
+    
+        players_set = Player.objects.filter(is_active=True)
+        for player in players_set.iterator():
+            matches_set = Match.objects.filter(status='COMPLETED')        
+            _matches_count = 0
+            _matches_won = 0
+            for match in matches_set.iterator():
+                if match.player_one == player or match.player_two == player:
+                    _matches_count += 1    
+                if match.winner == player:
+                    _matches_won += 1
+            
+            _win_ratio = 0
+            if _matches_count > 0 :
+                _win_ratio = _matches_won / _matches_count * 100           
+                    
+            RankingEventData.objects.create(date=self.date_created,name=player.first_name + ' ' + player.last_name,points=player.points,rank=player.ranking,winratio=_win_ratio,match_count=_matches_count)
+        
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+
+        
+        
+  
